@@ -173,7 +173,6 @@ export default function Home() {
 
               <div className="mt-3 flex items-center justify-between border-t border-slate-800 pt-3 text-[11px] text-slate-400">
                 <span>3 yrkesgrupper · 8 deltagare</span>
-                <span>Allt samlat i Byggarportalen</span>
               </div>
             </div>
           </div>
