@@ -1,4 +1,5 @@
-// src/app/page.tsx
+import Image from "next/image";
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50">
@@ -8,21 +9,26 @@ export default function Home() {
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 pb-10 pt-6 md:px-6 md:pt-8">
         {/* Navbar */}
         <header className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-400/40 bg-sky-500/10 text-sm font-semibold text-sky-300 shadow-sm shadow-sky-500/30">
-              BP
+          <div className="flex items-center gap-3">
+            {/* Logo wrapper */}
+            <div className="h-9 w-9 rounded-md border border-sky-400/40 bg-sky-500/10 shadow-sm shadow-sky-500/30 overflow-hidden relative">
+              <Image
+                src="/logo.png"
+                alt="Byggarportalen logotyp"
+                fill // <-- makes it fill the entire box
+                className="object-cover p-1 "
+              />
             </div>
-            <div>
-              <a href="/">
-                {" "}
-                <div className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-300">
-                  Byggarportalen
-                </div>
-                <p className="text-xs text-slate-400">
-                  Projektportal för hantverkare
-                </p>
-              </a>
-            </div>
+
+            {/* Text */}
+            <a href="/" className="block">
+              <div className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-300">
+                Byggarportalen
+              </div>
+              <p className="text-xs text-slate-400">
+                Projektportal för hantverkare
+              </p>
+            </a>
           </div>
 
           {/* Desktop navigation */}
@@ -308,13 +314,16 @@ export default function Home() {
               förbehållna.
             </p>
             <div className="flex flex-wrap gap-4">
-              <a href="#" className="hover:text-slate-300">
-                Integritet & cookies
+              <a href="/about" className="hover:text-slate-300">
+                Om
               </a>
-              <a href="#" className="hover:text-slate-300">
+              <a href="/contact" className="hover:text-slate-300">
                 Kontakt
               </a>
-              <a href="#" className="hover:text-slate-300">
+              <a
+                href="https://x.com/byggarportalen"
+                className="hover:text-slate-300"
+              >
                 X / Twitter
               </a>
             </div>
