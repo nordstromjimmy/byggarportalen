@@ -7,22 +7,22 @@ export default function KontaktPage() {
         <div className="mb-6 text-center">
           <Link
             href="/"
-            className="text-3xl font-semibold text-sky-300 hover:text-sky-300 transition"
+            className="text-2xl font-semibold text-sky-300 hover:text-sky-300 transition"
           >
             Byggarportalen.se
           </Link>
         </div>
-        <h1 className="text-2xl font-semibold">Kontakt</h1>
+        <h1 className="text-xl font-semibold">Kontakt</h1>
 
-        <p className="mt-3 text-slate-300">
+        <p className="mt-3 text-sm text-slate-300">
           Har du frågor eller vill komma i kontakt med oss?
         </p>
 
-        <p className="mt-3 text-slate-300">Du kan nå oss via e-post:</p>
+        <p className="mt-3 text-sm text-slate-300">Du kan nå oss via e-post:</p>
 
         <a
           href="mailto:info@byggarportalen.se"
-          className="mt-1 text-md font-medium text-sky-400"
+          className="mt-1 text-sm font-medium text-sky-400"
         >
           info@byggarportalen.se
         </a>
