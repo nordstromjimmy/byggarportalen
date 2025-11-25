@@ -15,7 +15,7 @@ export default function Home() {
               <Image
                 src="/logo.png"
                 alt="Byggarportalen logotyp"
-                fill // <-- makes it fill the entire box
+                fill
                 className="object-cover p-1 "
               />
             </div>
@@ -199,7 +199,7 @@ export default function Home() {
             </h2>
             <p className="mt-2 text-sm text-slate-300">
               Adress, kund, kontaktpersoner och viktiga anteckningar – samlat
-              per projekt istället för utspritt i sms och Excel.
+              per projekt istället för utspritt i sms och mail.
             </p>
           </div>
           <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
@@ -208,7 +208,7 @@ export default function Home() {
             </h2>
             <p className="mt-2 text-sm text-slate-300">
               En chatt per projekt där snickare, ventilation, elektriker m.fl.
-              kan ställa frågor och lösa detaljer snabbt.
+              kan ställa frågor och lösa problem snabbt.
             </p>
           </div>
         </section>
