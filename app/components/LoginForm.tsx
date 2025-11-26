@@ -108,7 +108,7 @@ export default function LoginForm() {
           <p className="mt-4 text-center text-sm text-slate-400">
             Har du inget konto?{" "}
             <Link href="/register" className="text-sky-400 hover:text-sky-300">
-              Skapa konto (kommer snart)
+              Skapa konto
             </Link>
           </p>
         </div>
