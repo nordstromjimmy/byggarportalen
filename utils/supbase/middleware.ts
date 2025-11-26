@@ -40,8 +40,8 @@ export async function updateSession(request: NextRequest) {
     "/",
     "/login",
     "/register",
-    "/integritet",
-    "/kontakt",
+    "/about",
+    "/contact",
     "/robots.txt",
     "/sitemap.xml",
   ];
