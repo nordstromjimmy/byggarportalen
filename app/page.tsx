@@ -25,6 +25,19 @@ export const metadata = {
   alternates: {
     canonical: "https://byggarportalen.se",
   },
+  other: {
+    "application/ld+json": JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "Byggarportalen",
+      url: "https://byggarportalen.se",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      description:
+        "Byggarportalen är ett enkelt verktyg för att planera, kommunicera och hantera små byggprojekt.",
+      inLanguage: "sv-SE",
+    }),
+  },
 };
 
 export default function Home() {
