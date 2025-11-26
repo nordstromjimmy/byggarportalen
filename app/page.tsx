@@ -1,5 +1,32 @@
 import Image from "next/image";
 
+export const metadata = {
+  title: "Byggarportalen – Projektportal för hantverkare",
+  description:
+    "Byggarportalen är ett enkelt verktyg för att planera, kommunicera och hantera små byggprojekt. Perfekt för hantverkare, mindre företag och entreprenörer.",
+  robots: "index, follow",
+  openGraph: {
+    title: "Byggarportalen – Projektportal för hantverkare",
+    description:
+      "Enkel projektplanering och kommunikation för mindre byggföretag.",
+    url: "https://byggarportalen.se",
+    siteName: "Byggarportalen",
+    images: [
+      {
+        url: "https://byggarportalen.se/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Byggarportalen – Projektportal för hantverkare",
+      },
+    ],
+    locale: "sv_SE",
+    type: "website",
+  },
+  alternates: {
+    canonical: "https://byggarportalen.se",
+  },
+};
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50">
