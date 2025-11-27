@@ -121,6 +121,7 @@ export default function SettingsForm() {
       const { error: profileError } = await supabase.from("profiles").upsert(
         {
           id: user.id,
+          email, // 👈 store current email in profiles too
           full_name: profile.full_name,
           phone: profile.phone,
           company: profile.company,

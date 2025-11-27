@@ -6,9 +6,10 @@ import { usePathname } from "next/navigation";
 import LogoutButton from "./LogoutButton";
 
 const navLinks = [
-  { href: "/app", label: "Översikt", icon: "🏠" },
-  { href: "/app/projects", label: "Projekt", icon: "📁" },
-  { href: "/app/settings", label: "Inställningar", icon: "⚙️" },
+  { href: "/dashboard", label: "Översikt", icon: "🏠" },
+  { href: "/dashboard/projects", label: "Projekt", icon: "📁" },
+  { href: "/dashboard/users", label: "Användare", icon: "👥" },
+  { href: "/dashboard/settings", label: "Inställningar", icon: "⚙️" },
 ];
 
 export default function MobileNav() {

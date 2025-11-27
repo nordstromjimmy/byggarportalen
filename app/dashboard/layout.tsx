@@ -32,6 +32,12 @@ export default function DashboardLayout({
             📁 Projekt
           </Link>
           <Link
+            href="/dashboard/users"
+            className="rounded px-3 py-2 hover:bg-slate-800/60"
+          >
+            👥 Användare
+          </Link>
+          <Link
             href="/dashboard/settings"
             className="rounded px-3 py-2 hover:bg-slate-800/60"
           >
@@ -56,7 +62,9 @@ export default function DashboardLayout({
       </header>
 
       {/* Page content */}
-      <main className="flex-1 p-4 pt-16 md:pt-4">{children}</main>
+      <div className="mx-auto max-w-7xl w-full">
+        <main className="flex-1 md:p-4 px-6 py-16">{children}</main>
+      </div>
     </div>
   );
 }
