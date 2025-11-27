@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function DashboardHome() {
   return (
     <div>
@@ -10,22 +12,21 @@ export default function DashboardHome() {
       {/* Quick cards */}
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-          <h2 className="text-sm font-semibold">Projekt</h2>
-          <p className="mt-1 text-xs text-slate-400">
-            Hantera alla dina projekt
-          </p>
+          <Link href="/dashboard/projects">
+            <h2 className="text-sm font-semibold">Projekt</h2>
+            <p className="mt-1 text-xs text-slate-400">
+              Hantera alla dina projekt
+            </p>
+          </Link>
         </div>
 
         <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-          <h2 className="text-sm font-semibold">Medlemmar</h2>
-          <p className="mt-1 text-xs text-slate-400">
-            Bjud in användare (kommer snart)
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4">
-          <h2 className="text-sm font-semibold">Inställningar</h2>
-          <p className="mt-1 text-xs text-slate-400">Företagsinställningar</p>
+          <Link href="dashboard/settings">
+            <h2 className="text-sm font-semibold">Inställningar</h2>
+            <p className="mt-1 text-xs text-slate-400">
+              Ändra kontaktinställningar
+            </p>
+          </Link>
         </div>
       </div>
     </div>

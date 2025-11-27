@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export const metadata = {
   title: "Byggarportalen – Projektportal för hantverkare",
@@ -61,42 +62,42 @@ export default function Home() {
             </div>
 
             {/* Text */}
-            <a href="/" className="block">
+            <Link href="/" className="block">
               <div className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-300">
                 Byggarportalen
               </div>
               <p className="text-xs text-slate-400">
                 Projektportal för hantverkare
               </p>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop navigation */}
           <nav className="hidden items-center gap-6 text-sm text-slate-300 md:flex">
-            <a href="#features" className="hover:text-slate-100">
+            <Link href="#features" className="hover:text-slate-100">
               Funktioner
-            </a>
-            <a href="#how-it-works" className="hover:text-slate-100">
+            </Link>
+            <Link href="#how-it-works" className="hover:text-slate-100">
               Så funkar det
-            </a>
-            <a href="#who-for" className="hover:text-slate-100">
+            </Link>
+            <Link href="#who-for" className="hover:text-slate-100">
               För vem?
-            </a>
-            <a
+            </Link>
+            <Link
               href="/login"
               className="rounded-full border border-slate-700 bg-slate-900/70 px-4 py-1.5 text-sm font-medium text-slate-100 shadow-sm hover:border-slate-500 hover:bg-slate-900"
             >
               Logga in
-            </a>
+            </Link>
           </nav>
 
           {/* Mobile log in button */}
-          <a
+          <Link
             href="/login"
             className="md:hidden rounded-full border border-slate-700 bg-slate-900/70 px-4 py-1.5 text-sm font-medium text-slate-100 shadow-sm hover:border-slate-500 hover:bg-slate-900"
           >
             Logga in
-          </a>
+          </Link>
         </header>
 
         {/* Hero */}
@@ -353,18 +354,19 @@ export default function Home() {
               förbehållna.
             </p>
             <div className="flex flex-wrap gap-4">
-              <a href="/about" className="hover:text-slate-300">
+              <Link href="/about" className="hover:text-slate-300">
                 Om
-              </a>
-              <a href="/contact" className="hover:text-slate-300">
+              </Link>
+              <Link href="/contact" className="hover:text-slate-300">
                 Kontakt
-              </a>
-              <a
+              </Link>
+              <Link
                 href="https://x.com/byggarportalen"
                 className="hover:text-slate-300"
               >
+                {" "}
                 X / Twitter
-              </a>
+              </Link>
             </div>
           </div>
         </footer>

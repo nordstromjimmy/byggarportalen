@@ -20,12 +20,12 @@ export default function KontaktPage() {
 
         <p className="mt-3 text-sm text-slate-300">Du kan nå oss via e-post:</p>
 
-        <a
+        <Link
           href="mailto:info@byggarportalen.se"
           className="mt-1 text-sm font-medium text-sky-400"
         >
           info@byggarportalen.se
-        </a>
+        </Link>
 
         <p className="mt-6 text-sm text-slate-400">
           Byggarportalen utvecklas just nu och tjänsten kommer öppnas upp

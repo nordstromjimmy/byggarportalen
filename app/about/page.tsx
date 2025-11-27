@@ -27,13 +27,12 @@ export default function IntegritetPage() {
 
         <p className="mt-3 text-sm text-slate-300">
           Om du har frågor redan nu är du välkommen att kontakta oss via{" "}
-          <a
+          <Link
             href="mailto:info@byggarportalen.se"
             className="text-sky-400 hover:text-sky-300"
           >
             info@byggarportalen.se
-          </a>
-          .
+          </Link>
         </p>
       </div>
     </main>
