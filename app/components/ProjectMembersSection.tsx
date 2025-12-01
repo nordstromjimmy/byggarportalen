@@ -306,7 +306,7 @@ export function ProjectMembersSection({
                         type="button"
                         disabled={alreadyMember || addingUserId === profile.id}
                         onClick={() => handleAddToProject(profile)}
-                        className="rounded-lg bg-sky-500 px-3 py-1 text-[11px] font-semibold text-slate-950 hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="rounded-lg bg-sky-500 mt-1 px-3 py-1 text-[11px] font-semibold text-slate-950 hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
                       >
                         {alreadyMember
                           ? "Redan med i projektet"

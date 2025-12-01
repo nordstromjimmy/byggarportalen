@@ -30,6 +30,8 @@ export default function ProjectsClient() {
   const [endDate, setEndDate] = useState("");
   const [description, setDescription] = useState("");
 
+  const [isSuperuser, setIsSuperuser] = useState<boolean | null>(null);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -51,6 +53,21 @@ export default function ProjectsClient() {
         return;
       }
 
+      // Fetch profile to know if user is superuser
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("is_superuser")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error(profileError);
+      }
+
+      // default to false if no row
+      setIsSuperuser(profile?.is_superuser === true);
+
+      // Fetch projects (without owner_id filter
       const { data, error } = await supabase
         .from("projects")
         .select("*")
@@ -79,6 +96,11 @@ export default function ProjectsClient() {
     e.preventDefault();
     setSaving(true);
     setErrorMsg(null);
+
+    if (!isSuperuser) {
+      setErrorMsg("Du har inte behörighet att skapa projekt.");
+      return;
+    }
 
     try {
       const {
@@ -148,12 +170,19 @@ export default function ProjectsClient() {
       {/* Header row */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-base font-semibold text-slate-100">Dina projekt</h2>
-        <button
-          onClick={() => setShowNewForm((v) => !v)}
-          className="inline-flex items-center rounded-lg bg-sky-500 px-4 py-1.5 text-sm font-semibold text-slate-950 hover:bg-sky-400 cursor-pointer"
-        >
-          {showNewForm ? "Avbryt" : "Nytt projekt"}
-        </button>
+
+        {isSuperuser ? (
+          <button
+            onClick={() => setShowNewForm((v) => !v)}
+            className="inline-flex items-center rounded-lg bg-sky-500 px-4 py-1.5 text-sm font-semibold text-slate-950 hover:bg-sky-400 cursor-pointer"
+          >
+            {showNewForm ? "Avbryt" : "Nytt projekt"}
+          </button>
+        ) : (
+          <p className="text-xs text-slate-400">
+            Endast SuperUsers kan skapa nya projekt.
+          </p>
+        )}
       </div>
 
       {/* New project form */}
