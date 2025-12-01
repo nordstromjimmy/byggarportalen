@@ -17,6 +17,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="sv">
+      <head>
+        <script
+          defer
+          data-domain="byggarportalen.se"
+          src="https://plausible.io/js/script.js"
+        />
+      </head>
       <body className={inter.className}>{children}</body>
     </html>
   );
