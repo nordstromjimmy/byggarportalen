@@ -42,6 +42,8 @@ export default function ProjectsClient() {
         error: userError,
       } = await supabase.auth.getUser();
 
+      if (!isMounted) return;
+
       if (userError || !user) {
         if (!isMounted) return;
         setErrorMsg("Kunde inte hämta användare. Försök logga in igen.");
@@ -52,7 +54,6 @@ export default function ProjectsClient() {
       const { data, error } = await supabase
         .from("projects")
         .select("*")
-        .eq("owner_id", user.id)
         .order("created_at", { ascending: false });
 
       if (!isMounted) return;
@@ -108,6 +109,15 @@ export default function ProjectsClient() {
         })
         .select()
         .single();
+
+      if (!error && data) {
+        // Auto-add owner as member in project_members
+        await supabase.from("project_members").insert({
+          project_id: data.id,
+          user_id: user.id,
+          role: "Projektledare", // or "Ägare", pick what feels right
+        });
+      }
 
       if (error) {
         console.error(error);
@@ -282,6 +292,8 @@ export default function ProjectsClient() {
               {project.address && (
                 <p className="mt-1 text-xs text-slate-400">{project.address}</p>
               )}
+
+              <h2>test</h2>
 
               <p className="mt-2 line-clamp-2 text-xs text-slate-300">
                 {project.description || "Ingen beskrivning angiven."}

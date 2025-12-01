@@ -4,6 +4,7 @@ import { useEffect, useState, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { ProjectMembersSection } from "./ProjectMembersSection";
 
 type Project = {
   id: string;
@@ -29,6 +30,10 @@ export default function ProjectPageClient({
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const isOwner =
+    !!currentUserId && !!project && currentUserId === project.owner_id;
+
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
   // Editable fields (for simple inline edit of name/description)
@@ -45,39 +50,50 @@ export default function ProjectPageClient({
       setLoading(true);
       setErrorMsg(null);
 
+      // Fetch current user
       const {
         data: { user },
         error: userError,
       } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        if (!isMounted) return;
-        setErrorMsg("Kunde inte hämta användare. Försök logga in igen.");
-        setLoading(false);
+        if (isMounted) {
+          setErrorMsg("Kunde inte hämta användare.");
+          setLoading(false);
+        }
         return;
       }
 
+      if (isMounted) setCurrentUserId(user.id);
+
+      // Load **ONLY this project**
       const { data, error } = await supabase
         .from("projects")
         .select("*")
         .eq("id", projectId)
-        .eq("owner_id", user.id) // extra safety on client
         .maybeSingle();
 
       if (!isMounted) return;
 
       if (error) {
         console.error(error);
-        setErrorMsg("Kunde inte hämta projekt.");
-      } else if (!data) {
-        setErrorMsg("Projektet hittades inte.");
-      } else {
-        const p = data as Project;
-        setProject(p);
-        setName(p.name);
-        setAddress(p.address ?? "");
-        setDescription(p.description ?? "");
+        setErrorMsg("Kunde inte hämta projektet.");
+        setLoading(false);
+        return;
       }
+
+      if (!data) {
+        setErrorMsg("Projektet hittades inte eller du har inte behörighet.");
+        setLoading(false);
+        return;
+      }
+
+      setProject(data as Project);
+
+      // Pre-fill editable fields
+      setName(data.name);
+      setAddress(data.address ?? "");
+      setDescription(data.description ?? "");
 
       setLoading(false);
     }
@@ -90,7 +106,7 @@ export default function ProjectPageClient({
   }, [projectId]);
 
   async function handleStatusChange(newStatus: Project["status"]) {
-    if (!project || updatingStatus) return;
+    if (!project || updatingStatus || !isOwner) return;
     setUpdatingStatus(true);
     setErrorMsg(null);
 
@@ -117,7 +133,7 @@ export default function ProjectPageClient({
 
   async function handleSaveDetails(e: FormEvent) {
     e.preventDefault();
-    if (!project) return;
+    if (!project || !isOwner) return;
 
     setSavingDetails(true);
     setErrorMsg(null);
@@ -125,14 +141,9 @@ export default function ProjectPageClient({
     try {
       const { data, error } = await supabase
         .from("projects")
-        .update({
-          name: name.trim() || project.name,
-          address: address.trim() || null,
-          description: description.trim() || null,
-        })
-        .eq("id", project.id)
-        .select()
-        .single();
+        .select("*")
+        .eq("id", projectId)
+        .maybeSingle();
 
       if (error) {
         console.error(error);
@@ -151,7 +162,7 @@ export default function ProjectPageClient({
   }
 
   async function handleDeleteProject() {
-    if (!project) return;
+    if (!project || !isOwner) return;
 
     const confirmed = window.confirm(
       "Är du säker på att du vill ta bort projektet? Detta går inte att ångra."
@@ -246,20 +257,22 @@ export default function ProjectPageClient({
           )}
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setEditMode((v) => !v)}
-            className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-800/60 cursor-pointer"
-          >
-            {editMode ? "Avbryt redigering" : "Redigera info"}
-          </button>
-          <button
-            onClick={handleDeleteProject}
-            className="rounded-lg border border-red-500/60 px-3 py-1.5 text-xs text-red-200 hover:bg-red-950/50 cursor-pointer"
-          >
-            Ta bort projekt
-          </button>
-        </div>
+        {isOwner && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setEditMode((v) => !v)}
+              className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-800/60"
+            >
+              {editMode ? "Avbryt redigering" : "Redigera info"}
+            </button>
+            <button
+              onClick={handleDeleteProject}
+              className="rounded-lg border border-red-500/60 px-3 py-1.5 text-xs text-red-200 hover:bg-red-950/50"
+            >
+              Ta bort projekt
+            </button>
+          </div>
+        )}
       </div>
 
       {errorMsg && <p className="text-xs text-red-400">{errorMsg}</p>}
@@ -380,7 +393,7 @@ export default function ProjectPageClient({
             <div className="mt-3 flex flex-wrap gap-2 text-xs">
               <button
                 onClick={() => handleStatusChange("planned")}
-                disabled={updatingStatus}
+                disabled={updatingStatus || !isOwner}
                 className={
                   "rounded-full px-3 py-1 " +
                   (project.status === "planned"
@@ -392,7 +405,7 @@ export default function ProjectPageClient({
               </button>
               <button
                 onClick={() => handleStatusChange("ongoing")}
-                disabled={updatingStatus}
+                disabled={updatingStatus || !isOwner}
                 className={
                   "rounded-full px-3 py-1 " +
                   (project.status === "ongoing"
@@ -404,7 +417,7 @@ export default function ProjectPageClient({
               </button>
               <button
                 onClick={() => handleStatusChange("completed")}
-                disabled={updatingStatus}
+                disabled={updatingStatus || !isOwner}
                 className={
                   "rounded-full px-3 py-1 " +
                   (project.status === "completed"
@@ -416,9 +429,19 @@ export default function ProjectPageClient({
               </button>
             </div>
           </div>
+
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
+            <h2 className="text-sm font-semibold text-slate-100">
+              Chatt (kommer snart)
+            </h2>
+            <p className="mt-1 text-xs text-slate-400">
+              En egen chatt för detta projekt där alla yrkesgrupper kan ställa
+              frågor och uppdatera varandra.
+            </p>
+          </div>
         </div>
 
-        {/* Right: placeholders for future features */}
+        {/* Right: sections for this project */}
         <div className="space-y-4">
           <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
             <h2 className="text-sm font-semibold text-slate-100">
@@ -430,25 +453,7 @@ export default function ProjectPageClient({
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
-            <h2 className="text-sm font-semibold text-slate-100">
-              Deltagare (kommer snart)
-            </h2>
-            <p className="mt-1 text-xs text-slate-400">
-              Lägg till snickare, ventilation, elektriker m.fl. och samla alla
-              kontaktuppgifter för projektet.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
-            <h2 className="text-sm font-semibold text-slate-100">
-              Chatt (kommer snart)
-            </h2>
-            <p className="mt-1 text-xs text-slate-400">
-              En egen chatt för detta projekt där alla yrkesgrupper kan ställa
-              frågor och uppdatera varandra.
-            </p>
-          </div>
+          <ProjectMembersSection projectId={project.id} isOwner={isOwner} />
         </div>
       </div>
     </div>
