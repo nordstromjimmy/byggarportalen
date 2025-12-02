@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { ProjectMembersSection } from "./ProjectMembersSection";
+import ProjectTimeTableSection from "./ProjectTimeTableSection";
 
 type Project = {
   id: string;
@@ -17,6 +18,8 @@ type Project = {
   end_date: string | null;
   created_at: string;
   updated_at: string;
+  tidsplan_image_url: string | null;
+  tidsplan_image_path: string | null;
 };
 
 export default function ProjectPageClient({
@@ -443,15 +446,23 @@ export default function ProjectPageClient({
 
         {/* Right: sections for this project */}
         <div className="space-y-4">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
-            <h2 className="text-sm font-semibold text-slate-100">
-              Tidsplan (kommer snart)
-            </h2>
-            <p className="mt-1 text-xs text-slate-400">
-              Här kommer du kunna lägga upp en enkel vecka-för-vecka-plan med
-              ansvarig yrkesgrupp för varje moment.
-            </p>
-          </div>
+          <ProjectTimeTableSection
+            projectId={project.id}
+            isOwner={isOwner}
+            tidsplanImageUrl={project.tidsplan_image_url}
+            tidsplanImagePath={project.tidsplan_image_path}
+            onImageChange={({ url, path }) =>
+              setProject((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      tidsplan_image_url: url,
+                      tidsplan_image_path: path,
+                    }
+                  : prev
+              )
+            }
+          />
 
           <ProjectMembersSection projectId={project.id} isOwner={isOwner} />
         </div>
