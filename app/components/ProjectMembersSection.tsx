@@ -2,6 +2,7 @@
 
 import { useState, useEffect, FormEvent } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import ConfirmDialog from "./ConfirmDialog";
 
 type Profile = {
   id: string;
@@ -36,6 +37,10 @@ export function ProjectMembersSection({
 
   const [addingUserId, setAddingUserId] = useState<string | null>(null);
   const [roleByUser, setRoleByUser] = useState<Record<string, string>>({});
+
+  const [confirmDeleteMember, setConfirmDeleteMember] = useState(false);
+  const [deletingMember, setDeletingMember] = useState(false);
+  const [memberIdToDelete, setMemberIdToDelete] = useState<string | null>(null);
 
   // Load current members
   useEffect(() => {
@@ -184,19 +189,18 @@ export function ProjectMembersSection({
     }
   }
 
-  async function handleRemoveMember(memberId: string) {
+  async function handleRemoveMember() {
     if (!isOwner) return;
+    if (!memberIdToDelete) return;
 
-    const confirmed = window.confirm("Ta bort denna användare från projektet?");
-    if (!confirmed) return;
-
+    setDeletingMember(true);
     setMembersError(null);
 
     try {
       const { error } = await supabase
         .from("project_members")
         .delete()
-        .eq("id", memberId);
+        .eq("id", memberIdToDelete);
 
       if (error) {
         console.error(error);
@@ -204,10 +208,14 @@ export function ProjectMembersSection({
         return;
       }
 
-      setMembers((prev) => prev.filter((m) => m.id !== memberId));
+      setMembers((prev) => prev.filter((m) => m.id !== memberIdToDelete));
+      setConfirmDeleteMember(false);
+      setMemberIdToDelete(null);
     } catch (err) {
       console.error(err);
       setMembersError("Tekniskt fel vid borttagning.");
+    } finally {
+      setDeletingMember(false);
     }
   }
 
@@ -215,9 +223,7 @@ export function ProjectMembersSection({
     <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
       <h2 className="text-sm font-semibold text-slate-100">Deltagare</h2>
       <p className="mt-1 text-xs text-slate-400">
-        {isOwner
-          ? "Lägg till befintliga användare i projektet."
-          : "Dessa personer är kopplade till projektet."}
+        {isOwner ? "Lägg till befintliga användare i projektet." : ""}
       </p>
 
       {isOwner && (
@@ -243,7 +249,7 @@ export function ProjectMembersSection({
               <button
                 type="submit"
                 disabled={searching}
-                className="w-full rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
               >
                 {searching ? "Söker…" : "Sök"}
               </button>
@@ -377,8 +383,11 @@ export function ProjectMembersSection({
 
               {isOwner && (
                 <button
-                  onClick={() => handleRemoveMember(m.id)}
-                  className="rounded-full border border-red-500/50 px-2 py-0.5 text-[10px] text-red-200 hover:bg-red-950/60"
+                  onClick={() => {
+                    setMemberIdToDelete(m.id);
+                    setConfirmDeleteMember(true);
+                  }}
+                  className="rounded-full border border-red-500/50 px-2 py-0.5 text-[10px] text-red-200 hover:bg-red-950/60 cursor-pointer"
                 >
                   Ta bort
                 </button>
@@ -387,6 +396,24 @@ export function ProjectMembersSection({
           ))}
         </div>
       </div>
+      <ConfirmDialog
+        open={confirmDeleteMember}
+        title="Ta bort deltagare"
+        description="Är du säker på att du vill ta bort den här personen från projektet?"
+        confirmLabel="Ta bort"
+        cancelLabel="Avbryt"
+        variant="danger"
+        loading={deletingMember}
+        onClose={() => {
+          if (!deletingMember) {
+            setConfirmDeleteMember(false);
+            setMemberIdToDelete(null);
+          }
+        }}
+        onConfirm={() => {
+          void handleRemoveMember();
+        }}
+      />
     </div>
   );
 }

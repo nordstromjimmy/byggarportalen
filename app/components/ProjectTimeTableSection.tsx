@@ -2,6 +2,7 @@
 
 import { useState, ChangeEvent } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import ConfirmDialog from "./ConfirmDialog";
 
 type Props = {
   projectId: string;
@@ -21,6 +22,9 @@ export default function ProjectTidsplanSection({
   const [uploading, setUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showFull, setShowFull] = useState(false);
+
+  const [confirmDeleteImage, setConfirmDeleteImage] = useState(false);
+  const [deletingImage, setDeletingImage] = useState(false);
 
   async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -195,12 +199,8 @@ export default function ProjectTidsplanSection({
   async function handleRemoveImage() {
     if (!tidsplanImageUrl && !tidsplanImagePath) return;
 
-    const confirmRemove = window.confirm(
-      "Ta bort nuvarande tidsplansbild från projektet?"
-    );
-    if (!confirmRemove) return;
-
     setErrorMsg(null);
+    setDeletingImage(true);
 
     // Prefer stored path, fall back to parsing from URL
     const pathToRemove =
@@ -233,11 +233,14 @@ export default function ProjectTidsplanSection({
         return;
       }
 
-      // 3) Update parent state
+      // 3) Update parent state & close dialog
       onImageChange({ url: null, path: null });
+      setConfirmDeleteImage(false);
     } catch (err) {
       console.error(err);
       setErrorMsg("Tekniskt fel vid borttagning.");
+    } finally {
+      setDeletingImage(false);
     }
   }
 
@@ -257,7 +260,7 @@ export default function ProjectTidsplanSection({
               accept="image/*"
               onChange={handleFileChange}
               disabled={uploading}
-              className="block w-full text-[11px] text-slate-200 file:mr-2 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-[11px] file:font-medium file:text-slate-100 hover:file:bg-slate-700"
+              className="block w-full text-[11px] text-slate-200 file:mr-2 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-[11px] file:font-medium file:text-slate-100 hover:file:bg-slate-700 cursor-pointer"
             />
             {uploading && (
               <p className="text-[11px] text-slate-400">
@@ -267,8 +270,8 @@ export default function ProjectTidsplanSection({
             {tidsplanImageUrl && (
               <button
                 type="button"
-                onClick={handleRemoveImage}
-                className="text-[11px] text-red-300 hover:text-red-200"
+                onClick={() => setConfirmDeleteImage(true)}
+                className="text-[11px] text-red-300 hover:text-red-200 cursor-pointer"
               >
                 Ta bort nuvarande bild
               </button>
@@ -325,6 +328,21 @@ export default function ProjectTidsplanSection({
           />
         </div>
       )}
+      <ConfirmDialog
+        open={confirmDeleteImage}
+        title="Ta bort tidsplan"
+        description="Är du säker på att du vill ta bort den här tidsplansbilden från projektet?"
+        confirmLabel="Ta bort bild"
+        cancelLabel="Avbryt"
+        variant="danger"
+        loading={deletingImage}
+        onClose={() => {
+          if (!deletingImage) setConfirmDeleteImage(false);
+        }}
+        onConfirm={() => {
+          void handleRemoveImage();
+        }}
+      />
     </>
   );
 }

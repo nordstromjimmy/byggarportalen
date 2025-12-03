@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { ProjectMembersSection } from "./ProjectMembersSection";
 import ProjectTimeTableSection from "./ProjectTimeTableSection";
+import ProjectChatSection from "./ProjectChatSection";
+import ConfirmDialog from "./ConfirmDialog";
 
 type Project = {
   id: string;
@@ -45,6 +47,11 @@ export default function ProjectPageClient({
   const [address, setAddress] = useState("");
   const [description, setDescription] = useState("");
   const [savingDetails, setSavingDetails] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const [confirmDeleteProject, setConfirmDeleteProject] = useState(false);
+  const [deletingProject, setDeletingProject] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -97,6 +104,8 @@ export default function ProjectPageClient({
       setName(data.name);
       setAddress(data.address ?? "");
       setDescription(data.description ?? "");
+      setStartDate(data.start_date ?? "");
+      setEndDate(data.end_date ?? "");
 
       setLoading(false);
     }
@@ -144,8 +153,15 @@ export default function ProjectPageClient({
     try {
       const { data, error } = await supabase
         .from("projects")
+        .update({
+          name,
+          address: address || null,
+          description: description || null,
+          start_date: startDate || null,
+          end_date: endDate || null,
+        })
+        .eq("id", project.id)
         .select("*")
-        .eq("id", projectId)
         .maybeSingle();
 
       if (error) {
@@ -167,12 +183,8 @@ export default function ProjectPageClient({
   async function handleDeleteProject() {
     if (!project || !isOwner) return;
 
-    const confirmed = window.confirm(
-      "Är du säker på att du vill ta bort projektet? Detta går inte att ångra."
-    );
-    if (!confirmed) return;
-
     setErrorMsg(null);
+    setDeletingProject(true);
 
     try {
       const { error } = await supabase
@@ -186,11 +198,14 @@ export default function ProjectPageClient({
         return;
       }
 
-      // After delete, go back to projects list
+      // Stäng dialogen och gå tillbaka till projektlistan
+      setConfirmDeleteProject(false);
       router.push("/dashboard/projects");
     } catch (err) {
       console.error(err);
       setErrorMsg("Tekniskt fel vid borttagning.");
+    } finally {
+      setDeletingProject(false);
     }
   }
 
@@ -264,13 +279,13 @@ export default function ProjectPageClient({
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setEditMode((v) => !v)}
-              className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-800/60"
+              className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-800/60 cursor-pointer"
             >
               {editMode ? "Avbryt redigering" : "Redigera info"}
             </button>
             <button
-              onClick={handleDeleteProject}
-              className="rounded-lg border border-red-500/60 px-3 py-1.5 text-xs text-red-200 hover:bg-red-950/50"
+              onClick={() => setConfirmDeleteProject(true)}
+              className="rounded-lg border border-red-500/60 px-3 py-1.5 text-xs text-red-200 hover:bg-red-950/50 cursor-pointer"
             >
               Ta bort projekt
             </button>
@@ -348,6 +363,31 @@ export default function ProjectPageClient({
                   />
                 </div>
 
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-xs text-slate-300">
+                      Startdatum
+                    </label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-100 outline-none placeholder-slate-500 focus:border-sky-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs text-slate-300">
+                      Slutdatum
+                    </label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full rounded-lg border border-slate-700 bg-slate-950/50 px-3 py-2 text-sm text-slate-100 outline-none placeholder-slate-500 focus:border-sky-500"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="mb-1 block text-xs text-slate-300">
                     Beskrivning
@@ -370,14 +410,14 @@ export default function ProjectPageClient({
                       setAddress(project.address ?? "");
                       setDescription(project.description ?? "");
                     }}
-                    className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-800/60"
+                    className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-800/60 cursor-pointer"
                   >
                     Avbryt
                   </button>
                   <button
                     type="submit"
                     disabled={savingDetails}
-                    className="rounded-lg bg-sky-500 px-4 py-1.5 text-xs font-semibold text-slate-950 hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-lg bg-sky-500 px-4 py-1.5 text-xs font-semibold text-slate-950 hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
                   >
                     {savingDetails ? "Sparar…" : "Spara"}
                   </button>
@@ -433,15 +473,10 @@ export default function ProjectPageClient({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
-            <h2 className="text-sm font-semibold text-slate-100">
-              Chatt (kommer snart)
-            </h2>
-            <p className="mt-1 text-xs text-slate-400">
-              En egen chatt för detta projekt där alla yrkesgrupper kan ställa
-              frågor och uppdatera varandra.
-            </p>
-          </div>
+          <ProjectChatSection
+            projectId={project.id}
+            currentUserId={currentUserId}
+          />
         </div>
 
         {/* Right: sections for this project */}
@@ -467,6 +502,21 @@ export default function ProjectPageClient({
           <ProjectMembersSection projectId={project.id} isOwner={isOwner} />
         </div>
       </div>
+      <ConfirmDialog
+        open={confirmDeleteProject}
+        title="Ta bort projekt"
+        description="Är du säker på att du vill ta bort det här projektet? Alla kopplade data (deltagare, chatt, tidsplan) kommer att försvinna."
+        confirmLabel="Ta bort projekt"
+        cancelLabel="Avbryt"
+        variant="danger"
+        loading={deletingProject}
+        onClose={() => {
+          if (!deletingProject) setConfirmDeleteProject(false);
+        }}
+        onConfirm={() => {
+          void handleDeleteProject();
+        }}
+      />
     </div>
   );
 }
