@@ -321,13 +321,9 @@ export default function ProjectsClient() {
               {project.address && (
                 <p className="mt-1 text-xs text-slate-400">{project.address}</p>
               )}
-
-              <h2>test</h2>
-
               <p className="mt-2 line-clamp-2 text-xs text-slate-300">
                 {project.description || "Ingen beskrivning angiven."}
               </p>
-
               <p className="mt-3 text-[11px] text-slate-500">
                 Skapad:{" "}
                 {new Date(project.created_at).toLocaleDateString("sv-SE")}
